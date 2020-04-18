@@ -1,7 +1,5 @@
 import java.util.*;
 
-//import org.graalvm.compiler.nodes.calc.AddNode;
-
 
 class Main
 {
@@ -9,11 +7,11 @@ class Main
     public static void main(String[] args) 
     {
 
-        // Graph randomGraph = createRandomUnweightedGraphIter(6);
+         Graph randomGraph = createRandomUnweightedGraphIter(6);
 
         //randomGraph.printNodesWithEdges();
 
-        // ArrayList<Graph.Node> path =  randomGraph.GS.DFSRec(randomGraph, randomGraph.nodeList.get(1), randomGraph.nodeList.get(5));
+         ArrayList<Graph.Node> dfsRecPath =  randomGraph.GS.DFSRec(randomGraph, randomGraph.nodeList.get(1), randomGraph.nodeList.get(5));
         // ArrayList<Graph.Node> path01 =  randomGraph.GS.DFSIter(randomGraph, randomGraph.nodeList.get(1), randomGraph.nodeList.get(5));
         // ArrayList<Graph.Node> BFT_Rec_Path =  randomGraph.GS.BFTRec(randomGraph);
         // ArrayList<Graph.Node> BFT_Iter_Path =  randomGraph.GS.BFTIter(randomGraph);
@@ -21,7 +19,7 @@ class Main
         // ArrayList<Graph.Node> BFT_Iter_10000 =  BFTIterLinkedList();
         
 
-        // printPath(path);
+         printPath(dfsRecPath);
         // printPath(path01);
         // printPath(BFT_Rec_Path);
         // printPath(BFT_Iter_Path);
@@ -63,7 +61,7 @@ class Main
 
 
 
-    } // End Main
+    } 
 
 
 
@@ -137,15 +135,15 @@ class Main
     static DirectedGraph createRandomDAGIter(final int n)
     {
         DirectedGraph directedGraph = new DirectedGraph();
+        // A list 0 to n-1 for connections that are possible
+        ArrayList<Integer> possibleEdges = new ArrayList<Integer>();
 
         // Add n nodes
         for ( int i = 0; i < n; i++ )
+        {
             directedGraph.addNode();
-
-        // A list 0 to n-1 for connections that are possible
-        ArrayList<Integer> possibleEdges = new ArrayList<Integer>();
-        for ( int i = 0; i < n; i++ )
             possibleEdges.add(i);
+        }
 
         // Set edges for each node created
         // Nodes can only have edges to nodes ahead of them to prevent cycles
@@ -165,23 +163,16 @@ class Main
             
             Collections.shuffle(possibleEdgesFromCurrentNode);
 
-            int edgeList[] =  new int[numEdges];
-
             // Get the first numEdges elements from possibleEdgesFromCurrentNode
             // These will be the values for the edge connections made
             for ( int j = 0; j < numEdges; j++ )
-                edgeList[j] = possibleEdgesFromCurrentNode.get(j);
+                directedGraph.addDirectedEdge( directedGraph.nodeList.get(i), directedGraph.nodeList.get(possibleEdgesFromCurrentNode.get(j)) );
 
-            for ( int j = 0; j < numEdges; j++ )
-                // Left parameter stays the same. Right parameter gets random index from edgeList, subsequently 
-                // getting a random node from nodeList to add edge with
-                directedGraph.addDirectedEdge( directedGraph.nodeList.get(i), directedGraph.nodeList.get(edgeList[j]) );
-
-        } // End 'i' for loop
+        } 
 
         return directedGraph;
         
-    } // End createRandomDAGIter
+    } 
 
     static Graph createLinkedList(int n)
     {
@@ -261,7 +252,7 @@ class Main
         HashMap< Graph.Node,Integer> minimumDistanceMap =  new HashMap< Graph.Node,Integer>();
         HashMap< Graph.Node,Boolean> visited =  new HashMap< Graph.Node,Boolean>();
         HashMap< Graph.Node,Graph.Node> parentNode =  new HashMap< Graph.Node,Graph.Node>();
-        PriorityQueue<Graph.Node> queue = new PriorityQueue<Graph.Node>(new Graph.WeightedNodeComparator());
+        PriorityQueue<Graph.Node> queue = new PriorityQueue<Graph.Node>(new Graph.NodeComparator());
 
         minimumDistanceMap.put(start, 0);
         queue.add(start);
@@ -287,7 +278,7 @@ class Main
                         parentNode.put(edgeNode, currNode);
                     }
                     
-                    edgeNode.g = newDistance;
+                    edgeNode.distance = newDistance;
                     queue.add(edgeNode);
                 }
             });
@@ -324,18 +315,6 @@ class Main
         {
             Graph.Node currNode = gridGraph.nodeList.get(i);
 
-            // // Left most nodes in grid dont have a node to the left
-            // if ( i % n != 0 )
-            // {
-            //     int chanceOfConnection =  new Random().nextInt(101);
-            //     if ( chanceOfConnection > connectionThreshold )
-            //     {
-            //         int leftNodeIndex = i - 1;
-            //         Graph.Node nodeLeftOfCurrentNode = gridGraph.nodeList.get(leftNodeIndex);
-            //         gridGraph.addUndirectedEdge(currNode, nodeLeftOfCurrentNode);
-            //     }
-            // }
-
             // Right most nodes in grid dont have a node to the right
             // Prevents making right connections if nodes are in the last column
             // If n = 4 and i = 7, 7 % 4 = 3. 4 - 1 = 3. 3 == 3, so node is in the last column, skip
@@ -349,18 +328,6 @@ class Main
                     gridGraph.addUndirectedEdge(currNode, nodeRightOfCurrentNode);
                 }
             }
-
-            // // All nodes that are NOT in the first row will have a node above it
-            // if ( i  >= n )
-            // {
-            //     int chanceOfConnection =  new Random().nextInt(101);
-            //     if ( chanceOfConnection > connectionThreshold )
-            //     {
-            //         int topNodeIndex = i - n;
-            //         Graph.Node nodeAboveCurrentNode = gridGraph.nodeList.get(topNodeIndex);
-            //         gridGraph.addUndirectedEdge(currNode, nodeAboveCurrentNode);
-            //     }
-            //}
 
             // All nodes that are NOT in the last row will have a node below it
             // Prevents making bottom connections if nodes are in the last row
@@ -376,11 +343,11 @@ class Main
                 }
             }
 
-        } // End 'i' for loop
+        } 
 
         return gridGraph;
 
-    } // End createRandomGridGraph
+    } 
 
     
     static ArrayList<Graph.Node> astar(final Graph.Node sourceNode, final Graph.Node destNode)
@@ -388,8 +355,7 @@ class Main
         HashMap< Graph.Node,Integer> minimumDistanceMap =  new HashMap< Graph.Node,Integer>();
         HashMap< Graph.Node,Boolean> visited =  new HashMap< Graph.Node,Boolean>();
         HashMap< Graph.Node,Graph.Node> parentNode =  new HashMap< Graph.Node,Graph.Node>();
-        //Queue<Graph.Node> queue = new LinkedList<Graph.Node>();
-        PriorityQueue<Graph.Node> queue = new PriorityQueue<Graph.Node>(new Graph.UnweightedNodeComparator());
+        PriorityQueue<Graph.Node> queue = new PriorityQueue<Graph.Node>(new Graph.NodeComparator());
 
         
         minimumDistanceMap.put(sourceNode, 0);
@@ -397,7 +363,7 @@ class Main
 
         while ( !queue.isEmpty() )
         {
-            // Get node with smallest f()   
+            // Get node with smallest distance  
             Graph.Node currNode = queue.poll();
             visited.put(currNode, true);
 
@@ -410,7 +376,6 @@ class Main
                 if ( !visited.containsKey(edgeNode))
                 {  
                     int newDistance = minimumDistanceMap.get(currNode) + weight;
-                    //System.out.println("newDistance is: " + newDistance);
 
                     double oldDistance = Double.POSITIVE_INFINITY;
                     if ( minimumDistanceMap.containsKey(edgeNode) )
@@ -422,7 +387,7 @@ class Main
                         parentNode.put(edgeNode, currNode);
                     }
 
-                    edgeNode.f = newDistance + calculateHeuristic(edgeNode, destNode);
+                    edgeNode.distance = newDistance + calculateHeuristic(edgeNode, destNode);
                     queue.add(edgeNode);
                 }
             }
@@ -459,14 +424,4 @@ class Main
     }
 
 
-} // end Main class
-
-
-// https://www.techiedelight.com/increment-keys-value-map-java/
-// https://mkyong.com/java/java-how-to-get-keys-and-values-from-map/
-// https://www.geeksforgeeks.org/hashmap-containskey-method-in-java/
-// https://stackoverflow.com/questions/12952024/how-to-implement-infinity-in-java
-// https://www.callicoder.com/java-priority-queue/
-// https://www.geeksforgeeks.org/implement-priorityqueue-comparator-java/
-// https://www.w3schools.com/java/java_inheritance.asp
-// https://www.youtube.com/watch?v=pVfj6mxhdMw
+} 
